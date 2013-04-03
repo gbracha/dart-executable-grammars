@@ -1,0 +1,6 @@
+name:  parserCombinators
+description:  Executable Grammar library for Dart
+
+dependencies:
+#  js: any
+  unittest: any
