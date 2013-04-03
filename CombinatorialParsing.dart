@@ -227,7 +227,7 @@ get value => this; //?
 
 // utilities
 	CombinatorialParser get aWhitespaceChar {
-		return new PredicateTokenParser((String c) => c.charCodeAt(0) <=  ' '.charCodeAt(0),
+		return new PredicateTokenParser((String c) => c.codeUnitAt(0) <=  ' '.codeUnitAt(0),
            	       	   			    'whitespace expected');
         }
 
@@ -238,8 +238,8 @@ get value => this; //?
 	CombinatorialParser charBetween(String c1, String c2) {
 	      	return new PredicateTokenParser(
 	      	    (String c) => 
-	      	        (c1.charCodeAt(0) <= c.charCodeAt(0)) && 
-	      	        (c.charCodeAt(0) <= c2.charCodeAt(0)),
+	      	        (c1.codeUnitAt(0) <= c.codeUnitAt(0)) && 
+	      	        (c.codeUnitAt(0) <= c2.codeUnitAt(0)),
 		         'character between  $c1 and $c2 expected');
         }
 
@@ -412,7 +412,7 @@ class ErrorTrackingParserContext extends ParserContext {
    }
 
    recordFailure(f) {
-   		   if (failures.isEmpty || (failures.last.last <= f.last)) failures.addLast(f);
+   		   if (failures.isEmpty || (failures.last.last <= f.last)) failures.add(f);
    }
 }
 
@@ -629,7 +629,7 @@ class WhitespaceParser extends CombinatorialParser {
   parseWithContext(ParserContext context) {
     int pos = context.position;
 	  comment =  new List();
-	  for (String c = context.peekIfAbsent((){}); c == null ? false : c.charCodeAt(0) <= 32; c = context.peekIfAbsent((){}))
+	  for (String c = context.peekIfAbsent((){}); c == null ? false : c.codeUnitAt(0) <= 32; c = context.peekIfAbsent((){}))
 	   {comment.add(context.next);};
 	  if (comment.isEmpty) throw new ParserError('Whitespace expected', pos);
 	  return comment;

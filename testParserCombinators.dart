@@ -9,11 +9,11 @@ http://www.apache.org/licenses/LICENSE-2.0
 library test_combinatorial_parsing;
 
 import 'CombinatorialParsing.dart';
-import 'smalltalkParser.dart';
+import 'smalltalkRevisedParser.dart';
 import 'package:unittest/unittest.dart';
 
-class Test1 extends ExecutableGrammar {
- CombinatorialParser abc, de, start, alt;
+class Test1 extends RunnableGrammar {
+ //CombinatorialParser abc, de, start, alt;
  Test1() {
    abc = char('a') & char('b') & char('c');
    de = char('d') & char('e').plus;
@@ -22,8 +22,8 @@ class Test1 extends ExecutableGrammar {
  }
 }
 
-class Test2 extends ExecutableGrammar {
- CombinatorialParser digit, number;
+class Test2 extends RunnableGrammar {
+ //CombinatorialParser digit, number;
  Test2() {
    digit = charBetween("0", "9");
    number = digit.plus;//number & digit | digit;

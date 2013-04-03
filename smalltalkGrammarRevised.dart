@@ -101,7 +101,7 @@ char(':') | char('.') | char('-') | char('_') | char('`')
  * */;
 
 id = (letter & (letter | digit | char('_')).star).wrapper(
-        (fst, snd) => '$fst${new StringBuffer()..addAll(snd)}'
+        (fst, snd) => '$fst${new StringBuffer()..writeAll(snd)}'
         );
 
 identifier = tokenFor(id);
@@ -296,7 +296,7 @@ return new CollectingCommentParser((input) {
 
 bool isLetter(c) {
   int
-  code = c.charCodeAt(0);
+  code = c.codeUnitAt(0);
   return (code >= 97 && code <= 122) || (code >= 65 && code <= 90);
 }
 }
