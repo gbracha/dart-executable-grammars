@@ -151,7 +151,7 @@ class DartGrammar extends RunnableGrammar {
     typeParameter = metadata & identifier & (EXTENDS & type).opt;
     typeParameters = token('<') & typeParameter.plusSeparatedBy(comma) & token('>');
  
-    returnType:
+    returnType =
       VOID
       | type
     ; 
@@ -456,13 +456,6 @@ class DartGrammar extends RunnableGrammar {
       (assignableSelector & arguments.star).star & 
       (assignmentOperator & expressionWithoutCascade).opt
     ;
-    
-    namedArgument = label & expression;
-    argumentList =
-      namedArgument.plusSeparatedBy(comma)
-    | expressionList & (comma & namedArgument).star
-    ;
-    arguments = lparen & argumentList.opt & rparen;
     
     isOperator = IS & token('!').opt;
     typeTest = isOperator & type;
