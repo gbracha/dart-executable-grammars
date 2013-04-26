@@ -13,7 +13,6 @@ http://www.apache.org/licenses/LICENSE-2.0
 */
 
   import 'dart:mirrors';
-  import 'dart:async';
 
 class AlternatingParser extends CombinatorialParser {
 /* A parser that parses either P or Q. */
