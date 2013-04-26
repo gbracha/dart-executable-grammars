@@ -35,7 +35,7 @@ class MessageAST extends AST {
   var sel, args;
   MessageAST(this.sel, this.args) {
     assert(sel is String);
-    assert(args is Collection);
+    assert(args is List);
   }
 }
 
@@ -95,7 +95,7 @@ class SmalltalkParser extends SmalltalkGrammarRevised {
                       });
   }
 
-String charsToString(List<String> cs) => cs.reduce('', (s, c) => '$s $c');
+String charsToString(List<String> cs) => cs.fold('', (s, c) => '$s $c');
 
 
   get classBody {
@@ -113,7 +113,7 @@ String charsToString(List<String> cs) => cs.reduce('', (s, c) => '$s $c');
   }
 
   get classComment {
-    return super.classComment.wrapper((ws, c) => (c[2]) .reduce('', (s, ch) => '$s$ch'));
+    return super.classComment.wrapper((ws, c) => (c[2]) .fold('', (s, ch) => '$s$ch'));
   }
 
   get classDefinition {
@@ -148,7 +148,7 @@ String charsToString(List<String> cs) => cs.reduce('', (s, c) => '$s $c');
     return super.keywordMsgPattern.wrap((List kws) {
              var params =  new List();
              assert(!kws.isEmpty);
-             var sel =  kws.reduce('', (s , kwp) { 
+             var sel =  kws.fold('', (s , kwp) { 
                                            params.add(kwp.last);
                                            '$s ${kwp.first.token}';
                                           });

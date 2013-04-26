@@ -102,7 +102,7 @@ If parsing fails, it is the caller's responsibility to set the input stream back
 (Q: is this a good idea?).
  */
 
-   String name; 
+   Symbol name; 
 
 /* Used to bypass 0 .. n ForwardReferenceParsers to get to the real parser.  Usually, this is 'this'. Only ForwardReferenceParsers forward the request to their forwardee */
 get ultimateParser => this;
@@ -286,12 +286,12 @@ get value => this; //?
 
 
 	wrapper(blk) {//? varying arity stuff here
-	 	 return  wrap( (rs) => Function.apply(blk, (rs is Collection) ? rs : [rs])); //? can this cope with a singleton?
+	 	 return  wrap( (rs) => Function.apply(blk, (rs is List) ? rs : [rs])); //? can this cope with a singleton?
 			/* return wrap: blk */
 	}
 
 	namedWrapper(blk, msg) {
-		 return  namedWrap( (rs) => Function.apply(blk, (rs is Collection) ? rs : [rs]), msg);
+		 return  namedWrap( (rs) => Function.apply(blk, (rs is List) ? rs : [rs]), msg);
 	}
 
 }
@@ -756,19 +756,17 @@ If an error occurs, the error block passed in is called. */
 
    
    
-   Future<CombinatorialParser> getRealField(String k){
+   CombinatorialParser getRealField(Symbol k){
      /* A gross hack to work around the deficiencies in Dart's mirror lib.
       * If the current class has a getter k but not a field
       * then assume that its getter k overrides the production k stored
       * in a field in the superclass with a wrapping parser on the field contents.
       * */
-     return selfMirror.getField(k).then(
-         (value) {
-           var p = value.reflectee;
-           if (selfMirror.type.getters.containsKey(k) && !selfMirror.type.variables.containsKey(k))
-           return p.parser;
-           else return p;
-         });
+     
+      var p = selfMirror.getField(k).reflectee;
+      if (selfMirror.type.getters.containsKey(k) && !selfMirror.type.variables.containsKey(k))
+        return p.parser;
+        else return p;
    }
    
    
@@ -776,16 +774,11 @@ If an error occurs, the error block passed in is called. */
      // gramamr construction. The result would be a future that one could chain to in order to parse
      // and the results of parsing would also be futures. Call back hell.
         forwardReferenceTable.forEach((k, v){
-//			      var p = selfMirror.getField(k).value.reflectee;
-            getRealField(k).then(
-                (p) { 
-                  
-			            if (p is CombinatorialParser) {
+			      var p = getRealField(k);    
+			      if (p is CombinatorialParser) {
 			      	      v.bind(p);
 				            p.name = k; /* a good place to name the productions */
-			            }}
-			      );
-        });
+			      }});
    }
    
    // helper methods because Dart mirrors do not climb the class hierarchy; unused
@@ -865,13 +858,13 @@ The disadvantages are that parsing is slower, because productions are looked up 
 of as fields, and the absence of type information.
  */
 
-  Map<String, ForwardReferenceParser> forwardReferenceTable = new Map<String, ForwardReferenceParser>();
-  Map<String, dynamic> productions = {}; // non-parsers might be inserted by noSuchMethod, so values have type dynamic
+  Map<Symbol, ForwardReferenceParser> forwardReferenceTable = new Map<Symbol, ForwardReferenceParser>();
+  Map<Symbol, dynamic> productions = new Map<Symbol, dynamic>(); // non-parsers might be inserted by noSuchMethod, so values have type dynamic
   
   RunnableGrammar();
   
   noSuchMethod(Invocation im){
-    // if its a get, look it up in the productions map; if its missing, install a forwarder and return that
+    // if it's a get, look it up in the productions map; if it's missing, install a forwarder and return that
     if (im.isGetter) {
       var result;
       return (result = productions[im.memberName]) == null ? setupForwardReference(im.memberName): result;
@@ -888,7 +881,7 @@ of as fields, and the absence of type information.
   }
 
   
-  ForwardReferenceParser setupForwardReference(String productionName){
+  ForwardReferenceParser setupForwardReference(Symbol productionName){
     ForwardReferenceParser fref =  new ForwardReferenceParser();
     fref.bindingRoutine = () => finalBindForwardReferences;
     return productions[productionName] = forwardReferenceTable[productionName] = fref;
