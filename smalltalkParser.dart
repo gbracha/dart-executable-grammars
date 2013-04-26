@@ -35,7 +35,7 @@ class MessageAST extends AST {
   var sel, args;
   MessageAST(this.sel, this.args) {
     assert(sel is String);
-    assert(args is Collection);
+    assert(args is List);
   }
 }
 
