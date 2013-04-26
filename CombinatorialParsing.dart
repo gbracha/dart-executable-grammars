@@ -870,7 +870,7 @@ of as fields, and the absence of type information.
   
   RunnableGrammar();
   
-  noSuchMethod(InvocationMirror im){
+  noSuchMethod(Invocation im){
     // if its a get, look it up in the productions map; if its missing, install a forwarder and return that
     if (im.isGetter) {
       var result;
@@ -879,7 +879,8 @@ of as fields, and the absence of type information.
     // if it is a set, install in the productions map
     if (im.isSetter){
       // Must be careful, since setter name and getter name differ by trailing '='!
-      String fieldName = im.memberName.substring(0, im.memberName.length - 1);
+      String setterName = MirrorSystem.getName(im.memberName);
+      Symbol fieldName = new Symbol(setterName.substring(0, setterName.length - 1));
       return productions[fieldName] = im.positionalArguments[0];      
     };
     // otherwise forward to super method
