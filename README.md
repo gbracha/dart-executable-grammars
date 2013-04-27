@@ -16,7 +16,7 @@ The class ExecutableGrammar embodies that logic. The class RunnableGrammar embod
 All one needs to do to switch from one implementation to the other is to inherit from RunnableGrammar instead of 
 ExecutableGrammar.
 
-The current DartGrammar needs debugging so that the grammar so it is truly accurate. 
+The current DartGrammar needs debugging so that the grammar is truly accurate. 
 There are also examples of functioning Smalltalk grammars and parsers. All of these are available in versions that use the either ExecutableGrammer 
 (dartGrammar.dart, smalltalkGrammar.dart, smalltalkParser.dart) and RunnableGrammar (dart_runnable_grammar.dart, 
 smalltalkGrammarRevised.dart, smalltalkRevisedParser.dart). 
