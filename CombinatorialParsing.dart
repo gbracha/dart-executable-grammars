@@ -741,8 +741,6 @@ If an error occurs, the error block passed in is called. */
 	InstanceMirror selfMirror;
   
   ExecutableGrammar() {
-    // Broken - now that asynchrony is enforced, one cannot rely on the mirror API to get things done
-    // at any specific time. Fixing this would change client grammars and make their API async as well!
   		      selfMirror = reflect(this); 
   		      setupForwardReferences;
   		      bindForwardReferences;
@@ -770,7 +768,7 @@ If an error occurs, the error block passed in is called. */
    
    
    get finalBindForwardReferences { // we could do this more eagerly after grammar was constructed, chaining it to
-     // gramamr construction. The result would be a future that one could chain to in order to parse
+     // grammar construction. The result would be a future that one could chain to in order to parse
      // and the results of parsing would also be futures. Call back hell.
         forwardReferenceTable.forEach((k, v){
 			      var p = getRealField(k);    
@@ -801,7 +799,7 @@ If an error occurs, the error block passed in is called. */
    List<VariableMirror> get _allProductions {
      List<VariableMirror> allProductions = new List();
      ClassMirror gc = selfMirror.type;
-     while (gc.simpleName != 'ExecutableGrammar') {
+     while (gc.simpleName != const Symbol('ExecutableGrammar')) {
        allProductions.addAll(gc.variables.values);
        gc = gc.superclass;
      }
@@ -812,7 +810,7 @@ If an error occurs, the error block passed in is called. */
      /* go thru all non-nil instance variables and set them to a fresh forward reference */
      /* If these do not correspond to productions, they will be overridden by the subclass */
      _allProductions.forEach((VariableMirror slot){ 
-	       String iv = slot.simpleName;
+	       Symbol iv = slot.simpleName;
 	       var fref =  new ForwardReferenceParser();
 	       /* Change due to deficiency in Dart mirror lib. Since getField invokes the getter rather than
 	        * actually accessing the field, once we override a production, the original code no longer works.  
@@ -823,7 +821,7 @@ If an error occurs, the error block passed in is called. */
 //	       if ((selfMirror.getField(iv)).value.reflectee == null) {
 		      forwardReferenceTable[iv] = fref;
 		      /* set iv to fref */
-		      selfMirror.setField(iv, reflect(fref)); 
+		      selfMirror.setField(iv, fref); 
 		      // would need to chain all these, and chain grammar construction to the result. This means grammar would have to be
 		      // in a known abstract method called by the constructor of this class.
 //		    };

@@ -13,7 +13,7 @@ import 'smalltalkRevisedParser.dart';
 import 'package:unittest/unittest.dart';
 
 class Test1 extends RunnableGrammar {
- //CombinatorialParser abc, de, start, alt;
+// CombinatorialParser abc, de, start, alt;
  Test1() {
    abc = char('a') & char('b') & char('c');
    de = char('d') & char('e').plus;
@@ -23,7 +23,7 @@ class Test1 extends RunnableGrammar {
 }
 
 class Test2 extends RunnableGrammar {
- //CombinatorialParser digit, number;
+// CombinatorialParser digit, number;
  Test2() {
    digit = charBetween("0", "9");
    number = digit.plus;//number & digit | digit;
