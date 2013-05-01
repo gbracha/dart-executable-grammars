@@ -22,7 +22,7 @@ class DartGrammar extends ExecutableGrammar {
   typeParameters, metadata, expression, expressionWithoutCascade, expressionList, primary, literal, nullLiteral, numericLiteral,
   NUMBER, EXPONENT, HEX_NUMBER, HEX_DIGIT, booleanLiteral, stringLiteral, singleLineString, multilineString, ESCAPE_SEQUENCE,
   HEX_DIGIT_SEQUENCE, stringContentDQ, stringContentSQ, stringContentTDQ, stringContentTSQ, NEWLINE, stringInterpolation, 
-  listLiteral, mapLiteral, mapLiteralEntry, throwExpression, throwExpressionWithoutCascade, rethrowExpression, functionExpression, 
+  listLiteral, mapLiteral, mapLiteralEntry, throwExpression, throwExpressionWithoutCascade, rethrowStatement, functionExpression, 
   functionExpressionBody, thisExpression, newExpression, constObjectExpression, arguments, argumentList, namedArgument, cascadeSection,
   cascadeSelector, assignmentOperator, compoundAssignmentOperator, conditionalExpression, logicalOrExpression, logicalAndExpression,
   bitwiseOrExpression, bitwiseXorExpression, bitwiseAndExpression, bitwiseOperator, equalityExpression, equalityOperator, 
@@ -503,7 +503,6 @@ class DartGrammar extends ExecutableGrammar {
     ;
     functionExpression = formalParameterList & functionExpressionBody;
       
-    rethrowExpression = RETHROW;
     throwExpression = THROW & expression;
     throwExpressionWithoutCascade = THROW & expressionWithoutCascade;
     
@@ -579,7 +578,6 @@ class DartGrammar extends ExecutableGrammar {
       assignableExpression & assignmentOperator & expression
       | conditionalExpression & cascadeSection.star
       | throwExpression
-      | rethrowExpression
     ;
 
 
@@ -588,7 +586,6 @@ class DartGrammar extends ExecutableGrammar {
       assignableExpression & assignmentOperator & expressionWithoutCascade
       | conditionalExpression
       | throwExpressionWithoutCascade
-      | rethrowExpression
     ;
 
     expressionList =  expression.plusSeparatedBy(comma);
@@ -641,6 +638,7 @@ class DartGrammar extends ExecutableGrammar {
     
     forStatement = FOR & lparen & forLoopParts & rparen & statement;
     ifStatement = IF & lparen & expression & rparen & statement & (ELSE & statement).opt;
+    rethrowStatement = RETHROW;
     localFunctionDeclaration = functionSignature & functionBody;
     localVariableDeclaration = initializedVariableDeclaration & semicolon;
     expressionStatement = expression.opt & semicolon;
@@ -653,6 +651,7 @@ class DartGrammar extends ExecutableGrammar {
           | doStatement
           | switchStatement
           | ifStatement
+          | rethrowStatement
           | tryStatement
           | breakStatement
           | continueStatement

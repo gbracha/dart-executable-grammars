@@ -473,7 +473,6 @@ class DartGrammar extends RunnableGrammar {
     ;
     functionExpression = formalParameterList & functionExpressionBody;
       
-    rethrowExpression = RETHROW;
     throwExpression = THROW & expression;
     throwExpressionWithoutCascade = THROW & expressionWithoutCascade;
     
@@ -549,7 +548,6 @@ class DartGrammar extends RunnableGrammar {
       assignableExpression & assignmentOperator & expression
       | conditionalExpression & cascadeSection.star
       | throwExpression
-      | rethrowExpression
     ;
 
 
@@ -558,7 +556,6 @@ class DartGrammar extends RunnableGrammar {
       assignableExpression & assignmentOperator & expressionWithoutCascade
       | conditionalExpression
       | throwExpressionWithoutCascade
-      | rethrowExpression
     ;
 
     expressionList =  expression.plusSeparatedBy(comma);
@@ -611,6 +608,7 @@ class DartGrammar extends RunnableGrammar {
     
     forStatement = FOR & lparen & forLoopParts & rparen & statement;
     ifStatement = IF & lparen & expression & rparen & statement & (ELSE & statement).opt;
+    rethrowStatement = RETHROW;
     localFunctionDeclaration = functionSignature & functionBody;
     localVariableDeclaration = initializedVariableDeclaration & semicolon;
     expressionStatement = expression.opt & semicolon;
@@ -623,6 +621,7 @@ class DartGrammar extends RunnableGrammar {
           | doStatement
           | switchStatement
           | ifStatement
+          | rethrowStatement
           | tryStatement
           | breakStatement
           | continueStatement
