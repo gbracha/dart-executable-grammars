@@ -701,12 +701,11 @@ class DartGrammar extends ExecutableGrammar {
     libraryDefinition = libraryName.opt & importOrExport.star & partDirective.star & topLevelDefinition.star;
     
     scriptTag = token('#!') & NEWLINE.not.star & NEWLINE;
-    scriptDefinition = scriptTag.opt & libraryDefinition;
+    scriptDefinition = scriptTag.opt & libraryDefinition & eoi;
   }
   
  bool isLetter(c) {
-    int
-    code = c.charCodeAt(0);
+    int code = c.codeUnitAt(0);
     return (code >= 97 && code <= 122) || (code >= 65 && code <= 90);
   }  
 }
