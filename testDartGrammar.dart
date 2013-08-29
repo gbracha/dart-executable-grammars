@@ -13,24 +13,34 @@ import 'dart_runnable_grammar.dart' as dartRunnableGrammar;
 import 'dartGrammar.dart' as dartExecutableGrammar;
 
 accept(production, input) {
-  print("Accepted ${production.parse(input)}");
+  try {
+  	production.parse(input);
+  	print("PASS: Accepted <$input>");
+  } catch(e) {
+    print("FAIL: Should have accepted <$input>");  	
+  }
 }
 
 reject(production, input) {
   try {
   	print(production.parse(input));
-  	throw "Should have rejected <$input>";
+  	throw "FAIL: Should have rejected <$input>";
   } catch(e) {
-  	return;
+  	print("PASS: Rejected <$input>");
   }
 }
 
 test(grammar) {
-  accept(grammar.identifier, 'a');
   reject(grammar.identifier, '9');
   reject(grammar.identifier, '');
-
-  
+  accept(grammar.identifier, 'foo');
+  accept(grammar.identifier, 'bar9');
+  accept(grammar.identifier, 'dollar\$');
+  accept(grammar.identifier, '_foo');
+  accept(grammar.identifier, '_bar9');
+  accept(grammar.identifier, '_dollar\$');
+  accept(grammar.identifier, '\$');
+  accept(grammar.identifier, ' leadingSpace');
 }
 
 main() {

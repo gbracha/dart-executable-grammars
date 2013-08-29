@@ -349,7 +349,7 @@ class DartGrammar extends RunnableGrammar {
 
     IDENTIFIER = IDENTIFIER_START & IDENTIFIER_PART.star;
     
-    identifier = IDENTIFIER;
+    identifier = tokenFor(IDENTIFIER);
     qualified = identifier.plusSeparatedBy(dot);
     
     assignableSelector =
