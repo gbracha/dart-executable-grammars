@@ -61,7 +61,12 @@ test(grammar) {
   accept(grammar.numericLiteral, '3E-4');
   accept(grammar.numericLiteral, '-3E4');
   accept(grammar.numericLiteral, '-3E-4');
+  accept(grammar.numericLiteral, '-3.14E4');
+  accept(grammar.numericLiteral, '-3.14E-4');
+  accept(grammar.numericLiteral, '-3.14');
+  accept(grammar.numericLiteral, '3.14');
   reject(grammar.numericLiteral, '-3e--4');
+  reject(grammar.numericLiteral, '5.');
   reject(grammar.numericLiteral, '-0xCAFE');
   reject(grammar.numericLiteral, '-0XCAFE');
   reject(grammar.numericLiteral, 'CAFE');
