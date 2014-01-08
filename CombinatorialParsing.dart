@@ -751,7 +751,7 @@ If an error occurs, the error block passed in is called. */
     forwardReferenceTable.values.forEach((v){v.bindingRoutine = () => finalBindForwardReferences;});
    }
 
-   
+   bool isField(Mirror m) => m is VariableMirror;
    
    CombinatorialParser getRealField(Symbol k){
      /* A gross hack to work around the deficiencies in Dart's mirror lib.
@@ -761,7 +761,7 @@ If an error occurs, the error block passed in is called. */
       * */
      
       var p = selfMirror.getField(k).reflectee;
-      if (selfMirror.type.getters.containsKey(k) && !selfMirror.type.variables.containsKey(k))
+      if (selfMirror.type.instanceMembers.containsKey(k) && selfMirror.type.declarations.values.where(isField).isEmpty)
         return p.parser;
         else return p;
    }
@@ -778,7 +778,7 @@ If an error occurs, the error block passed in is called. */
 			      }});
    }
    
-   // helper methods because Dart mirrors do not climb the class hierarchy; unused
+   // helper methods; unused
    
    List<ClassMirror> get _allSuperClasses {
      List<ClassMirror> allSuperclasses = new List();
@@ -792,15 +792,17 @@ If an error occurs, the error block passed in is called. */
    
    List<VariableMirror> get _allSlotMirrors {
      List<VariableMirror> allSlots = new List();
-     _allSuperClasses.forEach((sc) => allSlots.addAll(sc.variables.values));
-     return allSlots;
+     _allSuperClasses.forEach((sc) => 
+         allSlots.addAll(sc.declarations.values.where(isField)));
    }
+   
+   // helper method because declarations do not climb the class hierarchy
    
    List<VariableMirror> get _allProductions {
      List<VariableMirror> allProductions = new List();
      ClassMirror gc = selfMirror.type;
-     while (gc.simpleName != const Symbol('ExecutableGrammar')) {
-       allProductions.addAll(gc.variables.values);
+     while (gc.simpleName != #ExecutableGrammar) {
+       allProductions.addAll(gc.declarations.values.where(isField));
        gc = gc.superclass;
      }
      return allProductions;      
