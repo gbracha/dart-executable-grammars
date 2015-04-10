@@ -47,13 +47,17 @@ class AlternatingParser extends CombinatorialParser {
 	if (e1 == e2) {msg = e1;} else msg = '$e1 $or $e2';
 	return throw new ParserError(msg, pos);
 	}
+   
+   toString() => name == null ? '[$p | $q]' : name;
 }
 
 class CharParser extends  PredicateTokenParser {
-   /* This constructor leverages the assumption that characters are immutable values. Hence, if an input
+   /* This constructor leverages the assumption that single character stringss are immutable values. 
+   Hence, if an input
    equals the specified token, it is indistiguishable from it, and we can just return token as the result 
    of the parse. Consequently, the wrapper function we pass to the superclass constructor ignores its 
-   input and returns token. */
+   input and returns token. 
+    */
    CharParser(String tokenToParse): super((t){ return t == tokenToParse;}, '${tokenToParse} expected');  
 }
 
@@ -86,24 +90,29 @@ By using such parsers for comments, whitespace and strings, the overall performa
 }
 
 abstract class CombinatorialParser {
-/* This class is intended to implement Parser
-Combinators. A CombinatorialParser<T>
-returns a value of type T after successful
-parsing.
-
-The class is abstract. It does not implement
- the parsing routine parseWithContext() .
-
-Concrete subclasses should implement specific grammars.
-
-Parsing is initiated by calling parse(). This routine takes a String as input.
-If parsing fails, it is the caller's responsibility to set the input stream back to its original position
-(Q: is this a good idea?).
+/* This class is intended to implement ParserCombinators. 
+ * A CombinatorialParser<T> returns a value of type T after 
+ * successful parsing.
+ * 
+ * The class is abstract. It does not implement
+ * the parsing routine parseWithContext() .
+ * 
+ * Concrete subclasses should implement specific grammars.
+ * 
+ * Parsing is initiated by calling parse(). This routine takes a String as input.
+ * If parsing fails, it is the caller's responsibility to set the input stream back 
+ * to its original position (Q: is this a good idea?).
  */
 
-   Symbol name; 
+   String name; 
+   
+   toString() => name == null ? super.toString() : name;
 
-/* Used to bypass 0 .. n ForwardReferenceParsers to get to the real parser.  Usually, this is 'this'. Only ForwardReferenceParsers forward the request to their forwardee */
+/* Used to bypass 0 .. n ForwardReferenceParsers to get to the real parser.  
+ * Usually, this is 'this'. 
+ * Only ForwardReferenceParsers forward the request to their forwardee 
+ * 
+ */
 get ultimateParser => this;
 
 recordFailure(f) => this; /* Do nothing, save time */ //?
@@ -365,6 +374,8 @@ class NegatingParser extends CombinatorialParser {
      };
      throw new ParserError('not combinator failed', position);
    }
+   
+   toString() => name == null ? '~[$p]' : name;
 }
 
 abstract class ParserContext {
@@ -457,6 +468,9 @@ class PlusParser extends CombinatorialParser {
         results.add(nextResult);
     };
   }
+   
+   toString() => name == null ? '[$p]+' : name;
+
 }
 
 class PredicateTokenParser extends CombinatorialParser {
@@ -517,6 +531,9 @@ the typical sequencing operation is n-ary */
     //assert(blk.numArgs ==  subparsers.length);
     return wrap((rs) => Function.apply(blk, rs)); 
   }
+   
+   toString() => name == null ? subparsers.join(' & ') : name;
+
 }
 
 class StarParser extends CombinatorialParser {
@@ -543,10 +560,13 @@ class StarParser extends CombinatorialParser {
         results.add(nextResult);
       };
   }
+   
+   toString() => name == null ? '[$p]*' : name;
+
 }
 
 class SymbolicTokenParser extends CombinatorialParser {
-/* Parses a given symbol.  One could derive this as an alternation of character parsers, but the derivation is more verbose 
+/* Parses a given string.  One could derive this as an alternation of character parsers, but the derivation is more verbose 
  * than defining it directly, and less efficient, so why bother? 
  * */
   String symbol;
@@ -566,6 +586,9 @@ class SymbolicTokenParser extends CombinatorialParser {
   //    throw new ParserError(errMsg, pos);}); //?
     return symbol;
   }
+  
+  toString() => name == null ? symbol : name;
+
 }
 
 class Token {
@@ -614,6 +637,9 @@ class TokenizingParser extends CombinatorialParser {
 	       var res =  parser.parseWithContext(context);
 	       return new Token(res, pos, context.position);
   }
+	
+  toString() => name == null ? '[$parser token]' : name;
+
 }
 
 class WhitespaceParser extends CombinatorialParser {
@@ -653,6 +679,9 @@ The output type of the wrapped parser, S, is also the input to the wrapper. The 
    parseWithContext(ParserContext context) {
   	return wrapperBlock(parser.parseWithContext(context));
    }
+   
+   toString() => name == null ? 'wrap($parser)' : name;
+
 }
 
 class ForwardingWrappingParser extends WrappingParser {
@@ -719,6 +748,9 @@ class ForwardReferenceParser extends CombinatorialParser {
    parseWithContext(ParserContext context) {
    	  return parserToForwardTo.parseWithContext(context);
    }
+   
+   toString() => name == null ? 'forward($forwardee)' : name;
+
 }
 
 abstract class ExecutableGrammar extends CombinatorialParser {
@@ -776,6 +808,8 @@ If an error occurs, the error block passed in is called. */
 			      	      v.bind(p);
 				            p.name = k; /* a good place to name the productions */
 			      }});
+        forwardReferenceTable = null; // get rid of all unused forwarding parsers
+        // still leaks; if no forwarding porser is ever called. this never runs!
    }
    
    // helper methods; unused
@@ -829,36 +863,48 @@ If an error occurs, the error block passed in is called. */
 //		    };
 	   });	 
    }
+   
+    CombinatorialParser nameProductions() {
+     for (VariableMirror iv in _allProductions) {
+       Symbol pn = iv.simpleName;
+       var production = selfMirror.getField(pn).reflectee;
+       production.name = MirrorSystem.getName(pn);
+     }
+     return this;
+   }
 }
    
 
 abstract class RunnableGrammar extends CombinatorialParser {
-/* This class is intended to implement Parser
-Combinators. A RunnableGrammar[T]
-returns a value of type T after successful
-parsing.
-
-The class is abstract. It does not implement
- the parsing routine parseWithContext().
-
-Concrete subclasses should implement specific grammars.
-
-Parsing is initiated by calling parse(). This routine takes a String as input.
-If parsing fails, it is the caller's responsibility to set the input stream back to its original position
-(Q: is this a good idea?).
-
-This class differs from ExecutableGrammar in that it does not rely on reflection for its implementation. 
-Instead, it makes heavy use of noSuchMethod(). The advantage is that users do not have to declare all productions 
-as fields before actually setting the production value in the constructor.
-There is also a temporary advantage that this version can be used with dart2js right now, before mirrors are
-implemented; it may be that even when mirrors are supported by dart2js, the space advantages may be significant.
-
-The disadvantages are that parsing is slower, because productions are looked up via noSuchMethod() instead
-of as fields, and the absence of type information.
+/* This class is intended to implement Parser Combinators. 
+ * A RunnableGrammar[T] returns a value of type T after successful parsing.
+ * 
+ * The class is abstract. It does not implement 
+ * the parsing routine parseWithContext().
+ * 
+ * Concrete subclasses should implement specific grammars.
+ * 
+ * Parsing is initiated by calling parse(). This routine takes a String as input.
+ * If parsing fails, it is the caller's responsibility to set the input stream 
+ * back to its original position (Q: is this a good idea?).
+ * 
+ * This class differs from ExecutableGrammar in that it does not rely on reflection 
+ * for its implementation. Instead, it makes heavy use of noSuchMethod(). 
+ * The advantage is that users do not have to declare all productions 
+ * as fields before actually setting the production value in the constructor.
+ * There is also a temporary advantage that this version can be used with dart2js 
+ * right now, before mirrors are
+ * implemented; it may be that even when mirrors are supported by dart2js, 
+ * the space advantages may be significant.
+ * 
+ * The disadvantages are that parsing is slower, because productions are 
+ * looked up via noSuchMethod() instead of as fields, and the absence of 
+ * type information. 
  */
 
   Map<Symbol, ForwardReferenceParser> forwardReferenceTable = new Map<Symbol, ForwardReferenceParser>();
-  Map<Symbol, dynamic> productions = new Map<Symbol, dynamic>(); // non-parsers might be inserted by noSuchMethod, so values have type dynamic
+  Map<Symbol, dynamic> productions = new Map<Symbol, dynamic>(); 
+  // non-parsers might be inserted by noSuchMethod, so values have type dynamic
   
   RunnableGrammar();
   
@@ -873,7 +919,9 @@ of as fields, and the absence of type information.
       // Must be careful, since setter name and getter name differ by trailing '='!
       String setterName = MirrorSystem.getName(im.memberName);
       Symbol fieldName = new Symbol(setterName.substring(0, setterName.length - 1));
-      return productions[fieldName] = im.positionalArguments[0];      
+      var parser = im.positionalArguments[0];
+      parser.name = MirrorSystem.getName(fieldName); // name the production here!
+      return productions[fieldName] = parser;      
     };
     // otherwise forward to super method
     return super.noSuchMethod(im);
