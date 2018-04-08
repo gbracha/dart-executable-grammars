@@ -333,6 +333,8 @@ class EmptyParser extends CombinatorialParser {
 /* The parser that parses the empty input. It always succeeds. This class is a singleton. */
 // parsing
    parseWithContext(ParserContext context) => null;
+   
+   toString() => 'empty';
 }
 
 class FailingParser extends CombinatorialParser {
@@ -340,6 +342,8 @@ class FailingParser extends CombinatorialParser {
 // parsing
    parseWithContext(ParserContext context) =>  
        throw new ParserError('Failing Parser invoked', context.position);
+   
+   toString() => 'fail';
 }
 
 
@@ -659,6 +663,8 @@ class WhitespaceParser extends CombinatorialParser {
 	  if (comment.isEmpty) throw new ParserError('Whitespace expected', pos);
 	  return comment;
   }
+  
+  toString() => 'whitespace';
 }
 
 class WrappingParser extends CombinatorialParser {
